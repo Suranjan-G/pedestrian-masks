@@ -137,8 +137,8 @@ class Up(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, c_in=3, c_out=2, time_dim=256, remove_deep_conv=False):
-        super().__init__()
+    def __init__(self, c_in=3, c_out=2, time_dim=256, remove_deep_conv=False): #number of output channels = 2 (number of classes - background and foreground)
+        super().__init__()                                                     #number of input channels = 3 (RGB)
         self.time_dim = time_dim
         self.remove_deep_conv = remove_deep_conv
         self.inc = DoubleConv(c_in, 64)
