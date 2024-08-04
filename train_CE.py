@@ -68,14 +68,6 @@ class Diffusion:
             for i in tqdm(reversed(range(1, self.noise_steps)), position=0):
                 t = (torch.ones(n) * i).long().to(self.device)
                 predicted_noise = model(x, t)
-                # alpha = self.alpha[t][:, None, None, None]
-                # alpha_hat = self.alpha_hat[t][:, None, None, None]
-                # beta = self.beta[t][:, None, None, None]
-                # if i > 1:
-                #     noise = torch.randn_like(x)
-                # else:
-                #     noise = torch.zeros_like(x)
-                # x = 1 / torch.sqrt(alpha) * (x - ((1 - alpha) / (torch.sqrt(1 - alpha_hat))) * predicted_noise) + torch.sqrt(beta) * noise
         model.train()
         # x = (x.clamp(-1, 1) + 1) / 2
         x = (predicted_noise * 255).type(torch.uint8)
@@ -141,21 +133,18 @@ def label_to_mask(mask):
             label = color_code[i]
     return label
     
-def LogCoshLoss(y_t, y_prime_t):
+def LogCoshLoss(y_t, y_prime_t): # An interesting loss to check for: not implemented here
     ey_t = y_t - y_prime_t
     return torch.mean(torch.log(torch.cosh(ey_t + 1e-12)))
 
 def cross_entropy2d(input, target, weight=None, size_average=True):
     # input: (n, c, h, w), target: (n, h, w)
     n, c, h, w = input.size()
-    # log_p: (n, c, h, w)
    
     log_p = F.log_softmax(input, dim=1)
-    # log_p: (n*h*w, c)
     log_p = log_p.transpose(1, 2).transpose(2, 3).contiguous()
     log_p = log_p[target.view(n, h, w, 1).repeat(1, 1, 1, c) >= 0]
     log_p = log_p.view(-1, c)
-    # target: (n*h*w,)
     mask = target >= 0
     target = target[mask]
     target = target.type(torch.LongTensor)
@@ -276,15 +265,3 @@ def launch():
 
 if __name__ == '__main__':
     launch()
-    # device = "cuda"
-    # model = UNet().to(device)
-    # ckpt = torch.load("./working/orig/ckpt.pt")
-    # model.load_state_dict(ckpt)
-    # diffusion = Diffusion(img_size=64, device=device)
-    # x = diffusion.sample(model, 8)
-    # print(x.shape)
-    # plt.figure(figsize=(32, 32))
-    # plt.imshow(torch.cat([
-    #     torch.cat([i for i in x.cpu()], dim=-1),
-    # ], dim=-2).permute(1, 2, 0).cpu())
-    # plt.show()
