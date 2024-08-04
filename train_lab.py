@@ -149,22 +149,18 @@ class DeepVO(nn.Module):
         self.dense2 = nn.Linear(dwf*512,dwf*256)
         self.dense3 = nn.Linear(dwf*256,16)
         self.f2 = encode_double(((dwf*16)), dwf*8, drop=False)#64
-        # self.f2 = tensorflow.keras.layers.concatenate([e2,f2],axis = 3)
 
         self.f1 = encode_double(((dwf*8)+(dwf*8)), dwf*4, drop=False)#128
-        # self.f1 = tensorflow.keras.layers.concatenate([e1,f1],axis = 3) 
 
         self.f0 = encode_double(((dwf*4)+(dwf*4)), 3, drop=False)#256
-        # self.f0 = tensorflow.keras.layers.concatenate([e0,f0,op1],axis = 3) 
 
         self.op2 = nn.Conv2d(((dwf*2)+3), 3, kernel_size=3, stride=1, padding=1) 
-        #sigmoid
+        
         
     def forward(self, x, mask): 
         
         # CNN
         z = self.up(mask)
-        # print(z.shape, x.shape)
         x = torch.cat((x,z),1)
         x = self.inp(x)
         
@@ -182,7 +178,6 @@ class DeepVO(nn.Module):
         x = self.f1(x)
         x = torch.cat((e1,x),1)
         x = self.f0(x)
-        # print(x.shape)
         x = torch.cat((e0,x),1)        
         x = self.op2(x)
         op2 = self.sigmoid(x)        
@@ -191,7 +186,6 @@ class DeepVO(nn.Module):
 
     def get_loss(self, thermal, mask, rgb):
         predicted_fused = self.forward(thermal, mask)
-        # print(predicted_fused.shape, rgb.shape)
         rgb_loss = LogCoshLoss(predicted_fused, rgb)
         loss = rgb_loss 
         return loss
@@ -238,7 +232,6 @@ class Diffusion:
                 predicted_noise = model(x, t)
 
         model.train()
-        # x = (x.clamp(-1, 1) + 1) / 2
         x = (predicted_noise * 255).type(torch.uint8)
         return x
     
@@ -296,7 +289,7 @@ class My_val_Generator(torch.utils.data.Dataset):
 
         return (thermal/255, masks/255, fused/255, thermal_full/255)   
 
-def LogCoshLoss(y_t, y_prime_t):
+def LogCoshLoss(y_t, y_prime_t):  # An interesting loss to check for: not implemented here
     ey_t = y_t - y_prime_t
     return torch.mean(torch.log(torch.cosh(ey_t + 1e-12)))
 
@@ -307,10 +300,8 @@ def train(args):
     model1 = DeepVO(dwf).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     loss_fn = nn.MSELoss()
-    # loss_fn = LogCoshLoss
     diffusion = Diffusion(img_size=args.image_size, device=device)
     logger = SummaryWriter(os.path.join("runs", args.run_name))
-    # l = len(dataloader)
     my_training_batch_generator = My_Generator(X_train, z_train, y_train, batch_size= batch)
     my_validation_batch_generator = My_val_Generator(X_valid, z_valid, y_valid, batch_size= batch)
     
@@ -323,7 +314,6 @@ def train(args):
 
     for epoch in range(args.epochs):
         logging.info(f"Starting epoch {epoch+1}:")
-        # pbar = tqdm(dataloader)
         loss_mean1, loss_mean2 = 0, 0
         i = 0
         
@@ -423,15 +413,3 @@ def launch():
 
 if __name__ == '__main__':
     launch()
-    # device = "cuda"
-    # model = UNet().to(device)
-    # ckpt = torch.load("./working/orig/ckpt.pt")
-    # model.load_state_dict(ckpt)
-    # diffusion = Diffusion(img_size=64, device=device)
-    # x = diffusion.sample(model, 8)
-    # print(x.shape)
-    # plt.figure(figsize=(32, 32))
-    # plt.imshow(torch.cat([
-    #     torch.cat([i for i in x.cpu()], dim=-1),
-    # ], dim=-2).permute(1, 2, 0).cpu())
-    # plt.show()
