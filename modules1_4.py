@@ -199,7 +199,7 @@ class UNet(nn.Module):
 
 
 class UNet_conditional(UNet):
-    def __init__(self, c_in=3, c_out=3, time_dim=256, num_classes=None, **kwargs):
+    def __init__(self, c_in=3, c_out=3, time_dim=256, num_classes=None, **kwargs): #Both input and output are 3 channel images
         super().__init__(c_in, c_out, time_dim, **kwargs)
         if num_classes is not None:
             self.label_emb = nn.Embedding(num_classes, time_dim)
