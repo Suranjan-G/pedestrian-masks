@@ -26,3 +26,5 @@ We use PyTorch ## with CUDA ##
 Link for weights: 
 1. train_rgb: https://drive.google.com/file/d/10S5oQ7K4Tx3TeZi817Ix2OIzFILDi_fC/view?usp=sharing
 2. train_CE: https://drive.google.com/file/d/1V6pevnY_v5FGTBoswIwHDHmkdcFL_aX5/view?usp=sharing
+
+<img width="765" alt="Screenshot 2024-08-04 at 7 43 43 PM" src="https://github.com/user-attachments/assets/8149fd22-7ba7-4e7f-b5eb-564c7aca8cec">
