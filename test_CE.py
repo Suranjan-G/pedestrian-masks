@@ -50,44 +50,7 @@ def label_to_mask(mask):
             label[bool_mask] = overlay[i]
     return label
 
-class Diffusion:
-    def __init__(self, noise_steps=1000, beta_start=1e-4, beta_end=0.02, img_size=256, device="cuda"):
-        self.noise_steps = noise_steps
-        self.beta_start = beta_start
-        self.beta_end = beta_end
-        self.img_size = img_size
-        self.device = device
 
-        self.beta = self.prepare_noise_schedule().to(device)
-        self.alpha = 1. - self.beta
-        self.alpha_hat = torch.cumprod(self.alpha, dim=0)
-
-    def prepare_noise_schedule(self):
-        return torch.linspace(self.beta_start, self.beta_end, self.noise_steps)
-
-    def noise_images(self, x, t):
-        sqrt_alpha_hat = torch.sqrt(self.alpha_hat[t])[:, None, None, None]
-        sqrt_one_minus_alpha_hat = torch.sqrt(1 - self.alpha_hat[t])[:, None, None, None]
-        Ɛ = x
-        return sqrt_alpha_hat * x + sqrt_one_minus_alpha_hat * Ɛ
-
-    def sample_timesteps(self, n):
-        return torch.randint(low=1, high=self.noise_steps, size=(n,))
-
-    def sample(self, model, x, n):
-        logging.info(f"Sampling {n} new images....")
-        model.eval()
-        with torch.no_grad():
-            x = torch.from_numpy(x)
-            x = x.to(self.device)
-            for i in tqdm(reversed(range(1, self.noise_steps)), position=0):
-                t = (torch.ones(n) * i).long().to(self.device)
-                predicted_noise = model(x, t)
-        model.train()
-        # x = (x.clamp(-1, 1) + 1) / 2
-        x = (predicted_noise * 255).type(torch.uint8)
-        return x
-    
 class My_Generator(torch.utils.data.Dataset):
 
     def __init__(self, thermal_filenames, mask_filenames, batch_size= batch):
@@ -132,20 +95,13 @@ class My_val_Generator(torch.utils.data.Dataset):
         
         return (thermal/255, masks/255)  
 
-def LogCoshLoss(y_t, y_prime_t): # Not implemented, but an interesting direction to check on
-    ey_t = y_t - y_prime_t
-    return torch.mean(torch.log(torch.cosh(ey_t + 1e-12)))
-
 def test(args):
     min_loss_t = 1e10 #needs to change for training
     device = args.device
     model = UNet().to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     loss_fn = nn.MSELoss()
-    # loss_fn = LogCoshLoss # An interesting thing to check on
-    diffusion = Diffusion(img_size=args.image_size, device=device)
     logger = SummaryWriter(os.path.join("runs", args.run_name))
-    # l = len(dataloader)
     my_training_batch_generator = My_Generator(X_train, z_train, batch_size= batch)
     my_validation_batch_generator = My_val_Generator(X_valid, z_valid, batch_size= batch)
     
@@ -216,7 +172,6 @@ def launch():
     args.ckpt = fname[2:] + '_ckpt.pt'
     args.batch_size = 16
     args.image_size = img_size
-    args.dataset_path = r"C:\Users\dome\datasets\landscape_img_folder"
     args.device = "cuda"
     args.lr = 1e-3
     test(args)
@@ -224,6 +179,3 @@ def launch():
 
 if __name__ == '__main__':
     launch()
-    #     torch.cat([i for i in x.cpu()], dim=-1),
-    # ], dim=-2).permute(1, 2, 0).cpu())
-    # plt.show()
