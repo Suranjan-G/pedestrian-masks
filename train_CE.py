@@ -69,7 +69,6 @@ class Diffusion:
                 t = (torch.ones(n) * i).long().to(self.device)
                 predicted_noise = model(x, t)
         model.train()
-        # x = (x.clamp(-1, 1) + 1) / 2
         x = (predicted_noise * 255).type(torch.uint8)
         return x
     
@@ -90,8 +89,7 @@ class My_Generator(torch.utils.data.Dataset):
         masks = np.zeros((len(batch_y),1,img_row,img_col),dtype=np.float32)
             
         for i in range(len(batch_x)): 
-            thermal[i] = np.moveaxis(cv2.resize(cv2.imread(batch_x[i]),(img_col,img_row)),-1, 0)    
-            # print(batch_x[i],batch_z[i])
+            thermal[i] = np.moveaxis(cv2.resize(cv2.imread(batch_x[i]),(img_col,img_row)),-1, 0)   
             masks[i] = (cv2.resize(cv2.imread(batch_y[i],0),(img_col,img_row)))
 
         return (thermal/255, masks/255)  
@@ -114,7 +112,6 @@ class My_val_Generator(torch.utils.data.Dataset):
             
         for i in range(len(batch_x)): 
             thermal[i] = np.moveaxis(cv2.resize(cv2.imread(batch_x[i]),(img_col,img_row)),-1, 0)    
-            # print(batch_x[i],batch_z[i])
             masks[i] = (cv2.resize(cv2.imread(batch_y[i],0),(img_col,img_row)))
 
         return (thermal/255, masks/255) 
@@ -156,16 +153,13 @@ def cross_entropy2d(input, target, weight=None, size_average=True):
 
 def train(args):
     min_loss_t = 1e10 #needs to change for training
-    # setup_logging(args.run_name)
     device = args.device
-    # dataloader = get_data(args)
     model = UNet().to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    # loss_fn = nn.MSELoss()
+    # loss_fn = nn.MSELoss() # this should be used for RGB
     loss_fn = cross_entropy2d
     diffusion = Diffusion(img_size=args.image_size, device=device)
     logger = SummaryWriter(os.path.join("runs", args.run_name))
-    # l = len(dataloader)
     my_training_batch_generator = My_Generator(X_train, y_train, batch_size= batch)
     my_validation_batch_generator = My_val_Generator(X_valid, y_valid, batch_size= batch)
     
@@ -179,7 +173,6 @@ def train(args):
     for epoch in range(args.epochs):
         tim = time.time()
         logging.info(f"Starting epoch {epoch+1}:")
-        # pbar = tqdm(dataloader)
         loss_mean = 0
         i = 0
         
