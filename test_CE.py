@@ -96,10 +96,8 @@ class My_val_Generator(torch.utils.data.Dataset):
         return (thermal/255, masks/255)  
 
 def test(args):
-    min_loss_t = 1e10 #needs to change for training
     device = args.device
     model = UNet().to(device)
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
     loss_fn = nn.MSELoss()
     logger = SummaryWriter(os.path.join("runs", args.run_name))
     my_training_batch_generator = My_Generator(X_train, z_train, batch_size= batch)
@@ -167,13 +165,9 @@ def launch():
     parser = argparse.ArgumentParser()
     args = parser.parse_args()
     args.run_name = fname[2:]
-    args.epochs = 500
     args.folder = fname[2:]
     args.ckpt = fname[2:] + '_ckpt.pt'
-    args.batch_size = 16
-    args.image_size = img_size
     args.device = "cuda"
-    args.lr = 1e-3
     test(args)
 
 
