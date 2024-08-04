@@ -83,14 +83,6 @@ class Diffusion:
             for i in tqdm(reversed(range(1, self.noise_steps)), position=0):
                 t = (torch.ones(n) * i).long().to(self.device)
                 predicted_noise = model(x, t)
-                # alpha = self.alpha[t][:, None, None, None]
-                # alpha_hat = self.alpha_hat[t][:, None, None, None]
-                # beta = self.beta[t][:, None, None, None]
-                # if i > 1:
-                #     noise = torch.randn_like(x)
-                # else:
-                #     noise = torch.zeros_like(x)
-                # x = 1 / torch.sqrt(alpha) * (x - ((1 - alpha) / (torch.sqrt(1 - alpha_hat))) * predicted_noise) + torch.sqrt(beta) * noise
         model.train()
         # x = (x.clamp(-1, 1) + 1) / 2
         x = (predicted_noise * 255).type(torch.uint8)
@@ -140,19 +132,17 @@ class My_val_Generator(torch.utils.data.Dataset):
         
         return (thermal/255, masks/255)  
 
-def LogCoshLoss(y_t, y_prime_t):
+def LogCoshLoss(y_t, y_prime_t): # Not implemented, but an interesting direction to check on
     ey_t = y_t - y_prime_t
     return torch.mean(torch.log(torch.cosh(ey_t + 1e-12)))
 
 def test(args):
     min_loss_t = 1e10 #needs to change for training
-    # setup_logging(args.run_name)
     device = args.device
-    # dataloader = get_data(args)
     model = UNet().to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     loss_fn = nn.MSELoss()
-    # loss_fn = LogCoshLoss
+    # loss_fn = LogCoshLoss # An interesting thing to check on
     diffusion = Diffusion(img_size=args.image_size, device=device)
     logger = SummaryWriter(os.path.join("runs", args.run_name))
     # l = len(dataloader)
@@ -234,15 +224,6 @@ def launch():
 
 if __name__ == '__main__':
     launch()
-    # device = "cuda"
-    # model = UNet().to(device)
-    # ckpt = torch.load("./working/orig/ckpt.pt")
-    # model.load_state_dict(ckpt)
-    # diffusion = Diffusion(img_size=64, device=device)
-    # x = diffusion.sample(model, 8)
-    # print(x.shape)
-    # plt.figure(figsize=(32, 32))
-    # plt.imshow(torch.cat([
     #     torch.cat([i for i in x.cpu()], dim=-1),
     # ], dim=-2).permute(1, 2, 0).cpu())
     # plt.show()
