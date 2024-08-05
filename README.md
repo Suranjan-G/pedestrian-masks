@@ -21,8 +21,6 @@ The data cards are provided as:
 These are the binarized data cards, for reproucibility. Other than this, the train test and validation for the data is also available at the IEEE DataPort link, where the images for the mask files can be obtained.
 Please note that the mask files are created by employing the Segment Anything Model (SAM: https://segment-anything.com/) on the annotations provided by the authors for thermal images in the KAIST Multispectral Pedestrian Dataset. We use only 1 object in our use case for the dataset, but more research can be conducted on the multi-class classification for the same.
 
-We use PyTorch ## with CUDA ##
-
 Link for weights: 
 1. train_rgb: https://drive.google.com/file/d/10S5oQ7K4Tx3TeZi817Ix2OIzFILDi_fC/view?usp=sharing
 2. train_CE: https://drive.google.com/file/d/1V6pevnY_v5FGTBoswIwHDHmkdcFL_aX5/view?usp=sharing
