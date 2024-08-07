@@ -19,7 +19,7 @@ The data cards are provided as:
 2. rgb.pkl
 3. thermal.pkl
 
-These are the binarized data cards, for reproucibility. Other than this, the train test and validation for the data is also available at the IEEE DataPort link, where the images for the mask files can be obtained.
+These are the binarized data cards, for reproducibility. Other than this, the train test and validation for the data is also available at the IEEE DataPort link, where the images for the mask files can be obtained.
 Please note that the mask files are created by employing the Segment Anything Model (SAM: https://segment-anything.com/) on the annotations provided by the authors for thermal images in the KAIST Multispectral Pedestrian Dataset. We use only 1 object in our use case for the dataset, but more research can be conducted on the multi-class classification for the same.
 
 Link for checkpoints: 
