@@ -1,7 +1,7 @@
 # pedestrian-masks
 Code for An Image Information Fusion based Simple Diffusion Network leveraging the Segment Anything Model for Guided Attention on Thermal Images producing Colorized Pedestrian Masks
 
-This code is for the accepted paper at Information Fusion. 
+This code is for the paper at https://www.sciencedirect.com/science/article/abs/pii/S1566253524003968 
 The code is for training a model to work with the KAIST Multispectral Pedestrian dataset, to use diffusion for creating a tight pedestrian mask and then creating a RGB-IR fused mask for pedestrian detection.
 https://soonminhwang.github.io/rgbt-ped-detection/
 
